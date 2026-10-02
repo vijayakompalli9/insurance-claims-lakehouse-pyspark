@@ -1,0 +1,19 @@
+# secrets / local config
+.env
+config/config.yaml
+# data outputs
+data/
+spark-warehouse/
+metastore_db/
+derby.log
+*.__staging/
+# python / tooling caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/

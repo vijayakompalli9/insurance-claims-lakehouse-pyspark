@@ -1,0 +1,4 @@
+# Runtime dependencies (versions installed and tested on Python 3.13 + OpenJDK 21)
+pyspark==4.0.4
+py4j==0.10.9.9
+PyYAML==6.0.3

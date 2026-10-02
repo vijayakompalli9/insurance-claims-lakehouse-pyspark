@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insurance-claims-lakehouse"
+version = "0.1.0"
+description = "Governed PySpark lakehouse (bronze/silver/gold) for synthetic insurance claims"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Vijaya Lakshmi Kompalli" }]
+dependencies = ["pyspark>=4.0,<4.1", "PyYAML>=6.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "N"]
+ignore = ["N812"]  # `functions as F` is the PySpark convention
+
+[tool.ruff.lint.isort]
+known-first-party = ["claims_lakehouse"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
