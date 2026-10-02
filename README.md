@@ -4,7 +4,7 @@
 
 > **Portfolio project.** Independently built demonstration using synthetic data. It is not code from, or affiliated with, any current or former employer or client. Developed with AI-assisted tooling and reviewed by the author.
 
-![insurance-claims-lakehouse-pyspark overview](docs/images/overview.png)
+![insurance-claims-lakehouse-pyspark overview](https://vijayakompalli9.github.io/images/insurance-claims-lakehouse-pyspark.png)
 
 ## Business problem
 
