@@ -1,0 +1,113 @@
+{
+  "batch_id": 2,
+  "status": "PASSED",
+  "checks": [
+    {
+      "name": "source_eq_bronze_plus_rejects",
+      "entity": "customers",
+      "expected": "26",
+      "actual": "26",
+      "passed": true
+    },
+    {
+      "name": "bronze_eq_silver_plus_rejects_plus_stale",
+      "entity": "customers",
+      "expected": "25",
+      "actual": "25",
+      "passed": true
+    },
+    {
+      "name": "rejects_area_accounts_for_all_rejects",
+      "entity": "customers",
+      "expected": "1",
+      "actual": "1",
+      "passed": true
+    },
+    {
+      "name": "source_eq_bronze_plus_rejects",
+      "entity": "policies",
+      "expected": "78",
+      "actual": "78",
+      "passed": true
+    },
+    {
+      "name": "bronze_eq_silver_plus_rejects_plus_stale",
+      "entity": "policies",
+      "expected": "76",
+      "actual": "76",
+      "passed": true
+    },
+    {
+      "name": "rejects_area_accounts_for_all_rejects",
+      "entity": "policies",
+      "expected": "2",
+      "actual": "2",
+      "passed": true
+    },
+    {
+      "name": "source_eq_bronze_plus_rejects",
+      "entity": "claims",
+      "expected": "106",
+      "actual": "106",
+      "passed": true
+    },
+    {
+      "name": "bronze_eq_silver_plus_rejects_plus_stale",
+      "entity": "claims",
+      "expected": "102",
+      "actual": "102",
+      "passed": true
+    },
+    {
+      "name": "rejects_area_accounts_for_all_rejects",
+      "entity": "claims",
+      "expected": "16",
+      "actual": "16",
+      "passed": true
+    },
+    {
+      "name": "silver_batch_rows_landed_in_fact",
+      "entity": "claims",
+      "expected": "90",
+      "actual": "90",
+      "passed": true
+    },
+    {
+      "name": "control_total_silver_eq_fact",
+      "entity": "claims",
+      "expected": "386161.04",
+      "actual": "386161.04",
+      "passed": true
+    },
+    {
+      "name": "control_total_source_eq_accepted_plus_rejected",
+      "entity": "claims",
+      "expected": "400617.85",
+      "actual": "400617.85",
+      "passed": true
+    }
+  ],
+  "rejects_by_entity_and_reason": {
+    "customers": {
+      "NULL_KEY": 1
+    },
+    "policies": {
+      "MALFORMED_RECORD": 1,
+      "NULL_KEY": 1
+    },
+    "claims": {
+      "DUPLICATE_KEY": 2,
+      "INVALID_DATE": 3,
+      "INVALID_NUMBER": 1,
+      "MALFORMED_RECORD": 1,
+      "NEGATIVE_AMOUNT": 3,
+      "NULL_KEY": 3,
+      "UNKNOWN_POLICY": 3
+    }
+  },
+  "claims_amount": {
+    "source_well_formed": "400617.85",
+    "accepted": "386161.04",
+    "rejected_parseable": "14456.81"
+  }
+}
