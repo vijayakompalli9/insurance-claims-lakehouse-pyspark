@@ -1,0 +1,90 @@
+name: Run demo
+
+# Click "Run workflow" on the Actions tab to run the full two-batch pipeline on
+# GitHub's runners. Results are published to the run summary and as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      strict_rules:
+        description: "Also run with stricter DQ rules to show the circuit breaker blocking gold"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      TZ: UTC
+      CLAIMS_LAKEHOUSE_ROOT: demo-out/lakehouse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install -e . --no-deps
+      - name: Generate synthetic feeds
+        run: python -m claims_lakehouse.generate_data --out data/raw
+      - name: Run batch 1 and batch 2 (bronze -> silver -> gold)
+        run: |
+          mkdir -p demo-out
+          python -m claims_lakehouse.run --batch all --reset | tee demo-out/run.log
+      - name: Circuit-breaker demo (strict rules, expected to block gold)
+        if: ${{ inputs.strict_rules }}
+        env:
+          CLAIMS_LAKEHOUSE_ROOT: demo-out/strict
+        run: |
+          python - <<'EOF'
+          import yaml, pathlib
+          rules = yaml.safe_load(pathlib.Path("config/dq_rules.yaml").read_text())
+          # add a deliberately unrealistic critical rule so the gate must open
+          rules["rules"].append({
+              "name": "demo_strict_claim_amount_cap", "table": "silver.claims",
+              "type": "range", "column": "claim_amount", "min": 0, "max": 1000,
+              "severity": "critical"})
+          pathlib.Path("demo-out").mkdir(exist_ok=True)
+          pathlib.Path("demo-out/strict_rules.yaml").write_text(yaml.safe_dump(rules))
+          EOF
+          set +e
+          python -m claims_lakehouse.run --batch 1 --reset --rules demo-out/strict_rules.yaml
+          echo "exit_code=$?" | tee demo-out/strict_exit.txt
+          exit 0
+      - name: Publish results to the run summary
+        run: |
+          R=demo-out/lakehouse/_reports
+          {
+            echo "## Insurance claims lakehouse - demo run"
+            echo
+            echo "Synthetic data for Northwind Mutual Insurance (fictional). Two daily batches processed bronze -> silver -> gold."
+            echo
+            echo '### Pipeline log (tail)'
+            echo '```'
+            tail -n 25 demo-out/run.log
+            echo '```'
+            for f in "$R"/dq_report_batch_2.md; do [ -f "$f" ] && { echo; cat "$f"; }; done
+            if [ -f "$R/reconciliation_batch_2.json" ]; then
+              echo; echo '### Reconciliation, batch 2'; echo '```json'; cat "$R/reconciliation_batch_2.json"; echo '```'
+            fi
+            if [ -f demo-out/strict_exit.txt ]; then
+              echo; echo '### Circuit breaker with strict rules'
+              echo "Run $(cat demo-out/strict_exit.txt) (2 = gate opened, gold publish blocked as designed)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lakehouse-demo-output
+          path: |
+            demo-out/run.log
+            demo-out/lakehouse/_reports/
+            demo-out/strict/_reports/
+          if-no-files-found: warn
