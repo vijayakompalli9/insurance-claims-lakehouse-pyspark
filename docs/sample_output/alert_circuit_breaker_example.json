@@ -1,0 +1,18 @@
+{
+  "alert_type": "DQ_CIRCUIT_BREAKER_OPEN",
+  "severity": "critical",
+  "pipeline": "insurance-claims-lakehouse",
+  "batch_id": 1,
+  "action_taken": "gold publish blocked; staged gold discarded; watermark not advanced",
+  "failed_rules": [
+    {
+      "rule": "claims_amount_under_10k",
+      "table": "silver.claims",
+      "type": "range",
+      "failed_rows": 7,
+      "failure_pct": 8.75
+    }
+  ],
+  "generated_at": "2026-10-02T18:29:04+00:00",
+  "runbook": "inspect rejects + DQ report, fix source or rule, re-run the same batch"
+}
