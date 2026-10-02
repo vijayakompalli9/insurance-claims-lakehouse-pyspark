@@ -1,10 +1,24 @@
 # Insurance Claims Lakehouse (PySpark)
 
+[![CI](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/ci.yml/badge.svg)](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/ci.yml) [![Run demo](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/demo.yml/badge.svg)](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/demo.yml) ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+
 > **Portfolio project.** Independently built demonstration using synthetic data. It is not code from, or affiliated with, any current or former employer or client. Developed with AI-assisted tooling and reviewed by the author.
+
+![insurance-claims-lakehouse-pyspark overview](docs/images/overview.png)
 
 ## Business problem
 
 Northwind Mutual Insurance (fictional), a P&C and life carrier, gets daily policy, claims and customer feeds from its admin and claims systems. The feeds arrive with the usual problems: claim rows with no key, negative reserves, re-sent duplicates, claims against policies nobody has heard of, impossible dates, and policy attributes (premium, deductible, status, coverage) that change between drops. Actuarial and finance teams need a **trusted star schema** for loss-ratio and claims-exposure reporting. That means bad data is quarantined with a reason, never silently dropped. Policy history is kept so each claim is tied to the policy terms in force on its loss date. Nothing reaches the reporting layer unless it passes quality gates and reconciles to the source.
+
+## Try it without installing anything
+
+1. Open the [**Run demo** workflow](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/demo.yml).
+2. Click **Run workflow** (you need to be signed in to GitHub), then open the run when it finishes, in about 2–4 minutes.
+3. Read the results on the run's **Summary** page, or download the `*-demo-output` artifact.
+
+The demo generates two daily batches of synthetic feeds, runs bronze → silver → gold, and posts the data-quality report and reconciliation to the run summary. It then reruns batch 1 with a deliberately strict rule to show the circuit breaker blocking the gold publish (exit code 2).
+
+Tested with PySpark 4 · Python 3.13 · Java 21. Every push to `main` also runs the [CI workflow](https://github.com/vijayakompalli9/insurance-claims-lakehouse-pyspark/actions/workflows/ci.yml): lint, the full test suite and a smoke run.
 
 ## What this demonstrates
 
