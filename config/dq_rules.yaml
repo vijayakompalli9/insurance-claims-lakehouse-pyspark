@@ -1,0 +1,102 @@
+# Data-quality rules evaluated after silver is written and gold is STAGED.
+# Any failing `critical` rule opens the circuit breaker: gold is not published.
+# Tables: silver.customers, silver.dim_policy, silver.claims,
+#         gold.dim_date, gold.dim_customer, gold.dim_policy, gold.fact_claims,
+#         gold.kpi_loss_ratio_monthly
+rules:
+  # ---- silver -------------------------------------------------------------
+  - name: claims_claim_id_not_null
+    table: silver.claims
+    type: not_null
+    column: claim_id
+    severity: critical
+  - name: claims_claim_id_unique
+    table: silver.claims
+    type: unique
+    column: claim_id
+    severity: critical
+  - name: claims_amount_range
+    table: silver.claims
+    type: range
+    column: claim_amount
+    min: 0
+    max: 5000000
+    severity: critical
+  - name: claims_status_accepted
+    table: silver.claims
+    type: accepted_values
+    column: claim_status
+    values: [OPEN, CLOSED, DENIED, REOPENED]
+    severity: critical
+  - name: claims_policy_referential
+    table: silver.claims
+    type: referential
+    column: policy_id
+    ref_table: silver.dim_policy
+    ref_column: policy_id
+    severity: critical
+  - name: policy_one_current_version
+    table: silver.dim_policy
+    type: unique
+    column: policy_id
+    where: is_current = true
+    severity: critical
+  - name: policy_version_key_unique
+    table: silver.dim_policy
+    type: unique
+    columns: [policy_id, effective_from]
+    severity: critical
+  - name: policy_product_line_accepted
+    table: silver.dim_policy
+    type: accepted_values
+    column: product_line
+    values: [AUTO, HOME, LIFE, COMMERCIAL]
+    severity: critical
+  - name: policy_premium_range
+    table: silver.dim_policy
+    type: range
+    column: premium_annual
+    min: 100
+    max: 50000
+    severity: warning
+  - name: customer_segment_accepted
+    table: silver.customers
+    type: accepted_values
+    column: segment
+    values: [RETAIL, PREFERRED, SMALL_BUSINESS]
+    severity: warning
+  # ---- gold ---------------------------------------------------------------
+  - name: fact_policy_sk_resolves
+    table: gold.fact_claims
+    type: referential
+    column: policy_sk
+    ref_table: gold.dim_policy
+    ref_column: policy_sk
+    severity: critical
+  - name: fact_customer_sk_resolves
+    table: gold.fact_claims
+    type: referential
+    column: customer_sk
+    ref_table: gold.dim_customer
+    ref_column: customer_sk
+    severity: critical
+  - name: fact_loss_date_resolves
+    table: gold.fact_claims
+    type: referential
+    column: loss_date_key
+    ref_table: gold.dim_date
+    ref_column: date_key
+    severity: critical
+  - name: fact_paid_not_above_incurred
+    table: gold.fact_claims
+    type: range
+    column: outstanding_amount
+    min: 0
+    severity: warning
+  - name: kpi_loss_ratio_sane
+    table: gold.kpi_loss_ratio_monthly
+    type: range
+    column: loss_ratio
+    min: 0
+    max: 5
+    severity: warning

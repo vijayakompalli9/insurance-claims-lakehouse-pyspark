@@ -1,0 +1,9 @@
+# Copy to config/config.yaml to customise. No secrets belong in this file.
+# Relative paths resolve against the project directory (CLAIMS_HOME or CWD).
+raw_root: data/raw              # landing zone for raw feeds (s3://<bucket>/raw in cloud)
+lakehouse_root: data/lakehouse  # bronze/silver/gold/rejects root
+rules_path: config/dq_rules.yaml
+seed: 42
+spark:
+  master: local[2]
+  shuffle_partitions: 4
